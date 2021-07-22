@@ -123,7 +123,7 @@ classdef simulation < handle
 
                 % Keep display active
                 if (mod(t_counter,obj.myosim_options.drawing_skip)==0)
-                    t_counter = t_counter
+                    t_counter = t_counter;
                 end
 
                 % Implement the time step

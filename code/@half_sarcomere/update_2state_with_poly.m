@@ -7,6 +7,8 @@ y = obj.myofilaments.y;
 
 % Get the overlap
 N_overlap = return_f_overlap(obj);
+% N_overlap
+
 
 % Pre-calculate rate
 r1 = obj.parameters.k_1 * ...
