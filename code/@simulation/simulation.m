@@ -2,7 +2,6 @@ classdef simulation < handle
     
     properties
         % These are properties that can be accessed from outside the class
-        MATMyoSim_code_version = '2.1.1';
         
         % The muscle
         myosim_muscle = [];
@@ -29,36 +28,8 @@ classdef simulation < handle
         % Constructor
         function obj = simulation(varargin)
             % Creates a new simulation with a muscle
-            
-            % First checks code version against model file version
-            if (~ obj.return_model_compatible(varargin{1}))
-                sprintf(...
-                    'Model file %s is not compatible with MATMyoSim code: %s', ...
-                    varargin{1}, obj.MATMyoSim_code_version);
-                error(1);
-            end
-            
-            % Creates a new simulation with a muscle
             model_json_file_string = varargin{1};
             obj.myosim_muscle = muscle(model_json_file_string);
-        end
-        
-        function model_compatible = ...
-                return_model_compatible(obj, model_file_string)
-            % Check that model file is compatible with code version
-            
-            % Set model_compatible
-            model_compatible = false;
-            
-            % Load model
-            model_struct = loadjson(model_file_string);
-            
-            if (isfield(model_struct.MyoSim_model, 'code'))
-                model_version = model_struct.MyoSim_model.code;
-                code_version = obj.MATMyoSim_code_version;
-                
-                model_compatible = true;
-            end
         end
         
         function obj = implement_protocol(obj, ...
@@ -160,8 +131,6 @@ classdef simulation < handle
             obj.sim_output.time_s = NaN_array;
             obj.sim_output.muscle_force = NaN_array;
             obj.sim_output.muscle_length = NaN_array;
-            obj.sim_output.command_length = NaN_array;
-            obj.sim_output.slack_length = NaN_array;
             obj.sim_output.series_extension = NaN_array;
             NaN_matrix = NaN*ones(obj.sim_output.no_of_time_points, ...
                 obj.myosim_muscle.no_of_half_sarcomeres);
@@ -170,14 +139,10 @@ classdef simulation < handle
             obj.sim_output.f_bound = NaN_matrix;
             obj.sim_output.hs_force = NaN_matrix;
             obj.sim_output.cb_force = NaN_matrix;
-            obj.sim_output.int_pas_force = NaN_matrix;
-            obj.sim_output.int_total_force = NaN_matrix;
-            obj.sim_output.ext_pas_force = NaN_matrix;
+            obj.sim_output.pas_force = NaN_matrix;
             obj.sim_output.visc_force = NaN_matrix;
             obj.sim_output.hs_length = NaN_matrix;
             obj.sim_output.Ca = NaN_matrix;
-            
-            obj.sim_output.r1 = NaN_array;
 
             if (startsWith(obj.myosim_muscle.hs.kinetic_scheme, ...
                     '2state'))
@@ -214,39 +179,6 @@ classdef simulation < handle
                         2, ...
                         obj.myosim_muscle.hs(1).myofilaments.no_of_x_bins);                        
             end
-            
-            if (startsWith(obj.myosim_muscle.hs.kinetic_scheme, ...
-                '6state_with_SRX'))
-
-                obj.sim_output.M1 = NaN_matrix;
-                obj.sim_output.M2 = NaN_matrix;
-                obj.sim_output.M3 = NaN_matrix;
-                obj.sim_output.M4 = NaN_matrix;
-                obj.sim_output.M5 = NaN_matrix;
-                obj.sim_output.M6 = NaN_matrix;
-                obj.sim_output.cb_pops = NaN * ones( ...
-                        obj.sim_output.no_of_time_points, ...
-                        obj.myosim_muscle.no_of_half_sarcomeres, ...
-                        2, ...
-                        obj.myosim_muscle.hs(1).myofilaments.no_of_x_bins);                        
-            end
-            
-            if (startsWith(obj.myosim_muscle.hs.kinetic_scheme, ...
-                '7state_with_SRX'))
-
-                obj.sim_output.M1 = NaN_matrix;
-                obj.sim_output.M2 = NaN_matrix;
-                obj.sim_output.M3 = NaN_matrix;
-                obj.sim_output.M4 = NaN_matrix;
-                obj.sim_output.M5 = NaN_matrix;
-                obj.sim_output.M6 = NaN_matrix;
-                obj.sim_output.M7 = NaN_matrix;
-                obj.sim_output.cb_pops = NaN * ones( ...
-                        obj.sim_output.no_of_time_points, ...
-                        obj.myosim_muscle.no_of_half_sarcomeres, ...
-                        3, ...
-                        obj.myosim_muscle.hs(1).myofilaments.no_of_x_bins);                        
-            end
         end
         
         function obj = implement_time_step(obj, ...
@@ -259,10 +191,9 @@ classdef simulation < handle
                 t_counter = t_counter
             end
 
-                % Keep display active
-                if (mod(t_counter,obj.myosim_options.drawing_skip)==0)
-                    t_counter = t_counter;
-                end
+            % Implement the time step
+            obj.myosim_muscle.implement_time_step( ...
+                dt, dhsl, pCa, sim_mode, kinetic_scheme);
 
             % Store results
             if (t_counter==1)
@@ -277,8 +208,6 @@ classdef simulation < handle
                 obj.myosim_muscle.muscle_force;
             obj.sim_output.muscle_length(t_counter) = ...
                 obj.myosim_muscle.muscle_length;
-            obj.sim_output.command_length(t_counter) = ...
-                obj.myosim_muscle.command_length;
             obj.sim_output.series_extension(t_counter) = ...
                 obj.myosim_muscle.series_extension;
             for i=1:obj.myosim_muscle.no_of_half_sarcomeres
@@ -292,21 +221,16 @@ classdef simulation < handle
                     obj.myosim_muscle.hs(i).hs_force;
                 obj.sim_output.cb_force(t_counter,i) = ...
                     obj.myosim_muscle.hs(i).cb_force;
-                obj.sim_output.int_pas_force(t_counter,i) = ...
-                    obj.myosim_muscle.hs(i).int_passive_force;
-                obj.sim_output.int_total_force(t_counter,i) = ...
-                    obj.myosim_muscle.hs(i).int_total_force;
-                obj.sim_output.ext_pas_force(t_counter,i) = ...
-                    obj.myosim_muscle.hs(i).ext_passive_force;
+                obj.sim_output.intracellular_pas_force(t_counter,i) = ...
+                    obj.myosim_muscle.hs(i).intracellular_passive_force;
+                obj.sim_output.extracellular_pas_force(t_counter,i) = ...
+                    obj.myosim_muscle.hs(i).extracellular_passive_force;
                 obj.sim_output.visc_force(t_counter,i) = ...
                     obj.myosim_muscle.hs(i).viscous_force;
                 obj.sim_output.hs_length(t_counter,i) = ...
                     obj.myosim_muscle.hs(i).hs_length;
                 obj.sim_output.Ca(t_counter,i) = ...
                     obj.myosim_muscle.hs(i).Ca;
-                
-                obj.sim_output.r1(t_counter,i) = ...
-                    obj.myosim_muscle.hs(i).rate_structure.r1;
                 
                 if (startsWith(obj.myosim_muscle.hs(1).kinetic_scheme, ...
                     '2state'))
@@ -359,63 +283,6 @@ classdef simulation < handle
                     obj.sim_output.cb_pops(t_counter,i,2,:) = ...
                         obj.myosim_muscle.hs(i).myofilaments.y(M4_indices);
                 end
-                
-                if (startsWith(obj.myosim_muscle.hs(1).kinetic_scheme, ...
-                        '6state_with_SRX'))
-                    obj.sim_output.M1(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M1;
-                    obj.sim_output.M2(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M2;
-                    obj.sim_output.M3(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M3;
-                    obj.sim_output.M4(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M4;
-                    obj.sim_output.M5(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M5;
-                    obj.sim_output.M6(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M6;
-                    % Pull out the bin_distributions which need
-                    % an extra dimension
-                    M3_indices = 2+(1:obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins);
-                    M4_indices = (2+obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins) + ...
-                        (1:obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins);
-                    obj.sim_output.cb_pops(t_counter,i,1,:) = ...
-                        obj.myosim_muscle.hs(i).myofilaments.y(M3_indices);
-                    obj.sim_output.cb_pops(t_counter,i,2,:) = ...
-                        obj.myosim_muscle.hs(i).myofilaments.y(M4_indices);
-                end
-                
-                if (startsWith(obj.myosim_muscle.hs(1).kinetic_scheme, ...
-                        '7state_with_SRX'))
-                    obj.sim_output.M1(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M1;
-                    obj.sim_output.M2(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M2;
-                    obj.sim_output.M3(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M3;
-                    obj.sim_output.M4(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M4;
-                    obj.sim_output.M5(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M5;
-                    obj.sim_output.M6(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M6;
-                    obj.sim_output.M7(t_counter,i) = ...
-                        obj.myosim_muscle.hs(i).state_pops.M7;
-                    % Pull out the bin_distributions which need
-                    % an extra dimension
-                    M3_indices = 2+(1:obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins);
-                    M4_indices = (2+obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins) + ...
-                        (1:obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins);
-                    M5_indices = (2+(2*obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins)) + ...
-                        (1:obj.myosim_muscle.hs(i).myofilaments.no_of_x_bins);
-                    obj.sim_output.cb_pops(t_counter,i,1,:) = ...
-                        obj.myosim_muscle.hs(i).myofilaments.y(M3_indices);
-                    obj.sim_output.cb_pops(t_counter,i,2,:) = ...
-                        obj.myosim_muscle.hs(i).myofilaments.y(M4_indices);
-                    obj.sim_output.cb_pops(t_counter,i,3,:) = ...
-                        obj.myosim_muscle.hs(i).myofilaments.y(M5_indices);
-                end
-
             end
 
             % Draw rates if required on first time-step
