@@ -1,4 +1,4 @@
-function update_3state_with_SRC(obj,time_step);
+function update_3state_with_SRX(obj,time_step);
 % Function updates kinetics for thick and thin filaments based on 3 state
 % SRX model descripbed by Campbell et al, 2018
 

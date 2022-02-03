@@ -191,9 +191,10 @@ classdef simulation < handle
                 t_counter = t_counter
             end
 
-            % Implement the time step
-            obj.myosim_muscle.implement_time_step( ...
-                dt, dhsl, pCa, sim_mode, kinetic_scheme);
+                % Keep display active
+                if (mod(t_counter,obj.myosim_options.drawing_skip)==0)
+                    t_counter = t_counter;
+                end
 
             % Store results
             if (t_counter==1)
