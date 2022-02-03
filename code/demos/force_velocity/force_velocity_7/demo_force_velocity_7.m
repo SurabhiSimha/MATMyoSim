@@ -1,4 +1,4 @@
-function demo_force_velocity_1
+function demo_force_velocity_7
 % Demo demonstrates a force_velocity curve
 
 % Variables
@@ -6,17 +6,12 @@ model_file = 'sim_input/model.json';
 options_file = 'sim_input/options.json';
 protocol_base_file = 'sim_input/prot';
 results_base_file = 'sim_output/results';
-isotonic_forces = linspace(5000, 1.5e5, 12);
-no_of_time_points = 500;
+isotonic_forces = linspace(5000, 1.1e5, 12);
+no_of_time_points = 700;
 time_step = 0.001;
-isotonic_start_s = 0.4;
-fit_time_s = [0.43 0.48];
-display_time_s = [0.35 0.5];
-
-% Image file for documentation
-doc_image_file = ...
-    '../../../../docs/pages/demos/force_velocity/force_velocity_1/force_velocity_output';
-
+isotonic_start_s = 0.6;
+fit_time_s = [0.63 0.68];
+display_time_s = [0.55 0.7];
 
 % Make sure the path allows us to find the right files
 addpath(genpath('../../../../code'));
@@ -43,6 +38,8 @@ for i = 1 : numel(isotonic_forces)
     batch_structure.job{i}.results_file_string = results_file{i};
 end
 
+% return
+
 % Now that you have all the files, run the batch jobs in parallel
 run_batch(batch_structure);
 
@@ -55,7 +52,7 @@ cm = jet(numel(isotonic_forces));
 for i = 1 : numel(isotonic_forces)
     
     % Load the simulation back in
-    sim = load(results_file{i}, '-mat');
+    sim = load(fullfile(cd,results_file{i}), '-mat');
     sim_output = sim.sim_output;
 
     % Display the full simulation
@@ -138,5 +135,9 @@ plot(stress_fit(vi), pow_fit(vi), 'k-');
 title(sprintf('y=x*b*(((x_0+a)/(x+a))-1)\na=%g, b=%g, x_0=%g',a,b,x0));
 
 % Save figure to file for documentation
+
+% Image file for documentation
+doc_image_file = ...
+    '../../../../docs/pages/demos/force_velocity/force_velocity_7/force_velocity_output';
 figure_export('output_file', doc_image_file, ...
     'output_type', 'png');
