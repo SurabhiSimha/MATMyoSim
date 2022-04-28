@@ -3,7 +3,7 @@ function evolve_kinetics(obj, time_step, m_props, delta_hsl)
 
 switch (obj.kinetic_scheme)
     
-    case '2state_with_poly'
+    case '2state'
         update_2state_with_poly(obj, time_step);
     
     case '3state_with_SRX'
