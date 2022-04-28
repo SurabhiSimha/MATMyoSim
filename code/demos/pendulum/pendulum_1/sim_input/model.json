@@ -1,6 +1,9 @@
 {
     "MyoSim_model":
     {
+        "code": {
+		    "version": "2.1.1"
+	    },        
         "muscle_props":
         {
             "no_of_half_sarcomeres": 1,
@@ -35,9 +38,9 @@
                 "int_passive_force_mode": "linear",
                 "int_passive_hsl_slack": 1100,
                 "int_passive_k_linear": 10,
-	        "ext_passive_force_mode": "linear",
-		"ext_passive_hsl_slack": 950,
-		"ext_passive_k_linear": 0,
+	            "ext_passive_force_mode": "linear",
+		        "ext_passive_hsl_slack": 950,
+		        "ext_passive_k_linear": 0,
                 "compliance_factor": 0.5,
                 "cb_number_density": 6.9e16,
                 "k_boltzmann": 1.38e-23,
