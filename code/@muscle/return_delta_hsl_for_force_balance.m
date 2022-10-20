@@ -51,6 +51,9 @@ else
     
     opt = optimoptions('fsolve','Display','none');
     new_p = fsolve(@tension_control_muscle_system,p,opt);
+    
+    %% Added by SNS because tension control with series compliance doesn't output any delta_hsl otherwise
+    delta_hsl = new_p - p;
 end
 
     % Nested functions

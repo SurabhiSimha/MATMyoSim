@@ -5,7 +5,7 @@ addOptional(p,'time_step',0.001);
 addOptional(p,'output_file_string','protocol\triangle.txt');
 addOptional(p,'no_of_triangles',1);
 addOptional(p,'triangle_nm',50);
-addOptional(p,'pre_first_triangle_s',1);
+addOptional(p,'pre_first_triangle_s',2);
 addOptional(p,'triangle_rise_time_s',0.4);
 addOptional(p,'plateau_s',1);
 addOptional(p,'inter_triangle_s',0.1);
@@ -16,6 +16,7 @@ addOptional(p,'post_ktr_s',0);
 addOptional(p,'pre_Ca_s',0.1);
 addOptional(p,'initial_pCa',9.0);
 addOptional(p,'activating_pCa',6.0);
+addOptional(p,'mode',-2);
 parse(p,varargin{:});
 p=p.Results;
 
@@ -53,7 +54,7 @@ output.dhsl = [output.dhsl ; zeros(no_of_steps,1)];
 output.dt = p.time_step * ones(numel(output.dhsl),1);
 
 % Generate mode
-output.Mode = -2 * ones(numel(output.dhsl),1);
+output.Mode = p.mode * ones(numel(output.dhsl),1);
 
 % Generate pCa
 output.pCa = p.initial_pCa * ones(numel(output.dhsl),1);

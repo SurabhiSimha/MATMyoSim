@@ -4,29 +4,31 @@ p = inputParser;
 addOptional(p,'time_step',0.001);
 addOptional(p,'output_file_string','protocol\ramp.txt');
 addOptional(p,'ramp_amp_nm',50);
-addOptional(p,'pre_ramp_s',2);
-addOptional(p,'ramp_rise_time_s',0.2);
-addOptional(p,'ramp_hold_time_s',0.5);
+addOptional(p,'pre_ramp_s',1);
+addOptional(p,'triangle_rise_time_s',0.2);
+addOptional(p,'inter_triangle_s',0.1);
 addOptional(p,'pre_Ca_s',0.1);
 addOptional(p,'initial_pCa',9.0);
 addOptional(p,'activating_pCa',6.0);
-addOptional(p,'mode',-2);
 parse(p,varargin{:});
 p=p.Results;
 
 % Generate hsl
 output.dhsl = zeros(round(p.pre_ramp_s/p.time_step),1);
 
-no_of_ramp_steps = round(p.ramp_rise_time_s / p.time_step);
-dx = p.ramp_amp_nm / no_of_ramp_steps
-output.dhsl = [output.dhsl ; dx * ones(no_of_ramp_steps,1)];
-output.dhsl = [output.dhsl ; 0 * ones((p.ramp_hold_time_s / p.time_step),1)];
+no_of_triangle_steps = (p.triangle_rise_time_s / p.time_step)
+    dx = p.triangle_nm / no_of_triangle_steps
+    output.dhsl = [output.dhsl ; dx * ones(no_of_triangle_steps,1)];
+    output.dhsl = [output.dhsl ; -dx * ones(no_of_triangle_steps,1)];
+    if (i<p.no_of_triangles)
+        output.dhsl = [output.dhsl ; zeros(round(p.inter_triangle_s / p.time_step),1)];
+    end
 
 % Generate dt
 output.dt = p.time_step * ones(numel(output.dhsl),1);
 
 % Generate mode
-output.Mode = p.mode * ones(numel(output.dhsl),1);
+output.Mode = -2 * ones(numel(output.dhsl),1);
 
 % Generate pCa
 output.pCa = p.initial_pCa * ones(numel(output.dhsl),1);

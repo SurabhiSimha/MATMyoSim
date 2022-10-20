@@ -11,7 +11,8 @@ addOptional(p,'output_file_string','protocol\isometric_stimulus.txt');
 addOptional(p,'no_of_points',2000);
 addOptional(p,'stimulus_times',[0.1 0.4 0.7 0.85 1.0:0.05:1.4]);
 addOptional(p,'stimulus_duration',0.03);
-addOptional(p,'Ca_content',1e-3);
+addOptional(p,'init_Ca_content',1e-9);
+addOptional(p,'final_Ca_content',1e-3);
 addOptional(p,'k_leak',2e-2);
 addOptional(p,'k_act',3e-1);
 addOptional(p,'k_serca',20);
@@ -31,7 +32,7 @@ activation(activation<0)=0;
 activation(activation>1)=1;
 
 % Solve 2 compartment differential equation to give fake calcium transients
-y=[1e-9 p.Ca_content];
+y=[p.init_Ca_content p.final_Ca_content];
 for i=2:p.no_of_points
     act = activation(i);
     [t,y_temp]=ode45(@derivs,[0 p.time_step],y(i-1,:));

@@ -11,14 +11,14 @@ addOptional(p,'inter_sinusoid_s',0.1);
 addOptional(p,'pre_Ca_s',0.1);
 addOptional(p,'initial_pCa',9.0);
 addOptional(p,'activating_pCa',4.5);
-addOptional(p,'mode',-2);
 parse(p,varargin{:});
 p=p.Results;
 
 % Generate hsl
 hsl = zeros(round(p.pre_sinusoid_s/p.time_step),1);
+temp_t_pre_sinusoid = (p.time_step*numel(hsl)) + p.time_step;
 for i=1:numel(p.frequencies)
-    temp_t = p.time_step * (1:round((p.no_of_cycles / p.frequencies(i)) / p.time_step));
+    temp_t = p.time_step * (temp_t_pre_sinusoid:round((p.no_of_cycles / p.frequencies(i)) / p.time_step));
     hsl = [hsl ; p.dhsl_nm * sin(2 * pi * p.frequencies(i) * temp_t)'];
     if (i<numel(p.frequencies))
         hsl = [hsl ; zeros(round(p.inter_sinusoid_s / p.time_step),1)];
@@ -30,7 +30,7 @@ output.dhsl = diff(hsl);
 output.dt = p.time_step * ones(numel(output.dhsl),1);
 
 % Generate mode
-output.Mode = p.mode * ones(numel(output.dhsl),1);
+output.Mode = -2 * ones(numel(output.dhsl),1);
 
 % Generate pCa
 output.pCa = p.initial_pCa * ones(numel(output.dhsl),1);
