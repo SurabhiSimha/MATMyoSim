@@ -162,7 +162,7 @@ obj.rate_structure.r2 = r2;
         J_off = obj.parameters.k_off * (N_on - N_bound) * ...
                 (1 + obj.parameters.k_coop * ((N_overlap - N_on)/N_overlap));
             
-        % Calculate the derivs
+            % Calculate the derivs
         dy(1) = sum(J2) - sum(J1);
         for i=1:obj.myofilaments.no_of_x_bins
             dy(1+i) = J1(i) - J2(i);

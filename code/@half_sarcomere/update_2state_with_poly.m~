@@ -85,7 +85,7 @@ switch obj.parameters.rate_func
     case 'kyleBag'
         r1 = zeros(size(obj.myofilaments.x));
         r1 = obj.parameters.k_1 * ...
-            exp(-obj.parameters.k_cb * 10 * (obj.myofilaments.x).^2) / ...
+            exp(-obj.parameters.k_cb * 10 * ((obj.myofilaments.x).^2) / ...
             (1e18 * obj.parameters.k_boltzmann * ...
             obj.parameters.temperature));
         r1(r1>obj.parameters.max_rate)=obj.parameters.max_rate;
@@ -162,7 +162,7 @@ obj.rate_structure.r2 = r2;
         J_off = obj.parameters.k_off * (N_on - N_bound) * ...
                 (1 + obj.parameters.k_coop * ((N_overlap - N_on)/N_overlap));
             
-        % Calculate the derivs
+            % Calculate the derivs
         dy(1) = sum(J2) - sum(J1);
         for i=1:obj.myofilaments.no_of_x_bins
             dy(1+i) = J1(i) - J2(i);
