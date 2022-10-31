@@ -10,7 +10,6 @@ addOptional(p,'Ca_content',1e-3);
 addOptional(p,'k_leak',2e-2);
 addOptional(p,'k_act',3e-1);
 addOptional(p,'k_serca',20);
-addOptional(p,'mode',-2);
 parse(p,varargin{:});
 p=p.Results;
 
@@ -44,7 +43,7 @@ pCa_trace = -log10(y(:,1));
 output.dt = p.time_step * ones(p.no_of_points,1);
 
 % Generate mode
-output.Mode = p.mode * ones(p.no_of_points,1);
+output.Mode = p.mo * ones(p.no_of_points,1);
 
 % Generate dhsl
 output.dhsl = zeros(p.no_of_points,1);
