@@ -95,10 +95,42 @@ switch obj.parameters.rate_func
             abs(0.2*((obj.myofilaments.x(obj.myofilaments.x<-6)+6).^3));
         r2(obj.myofilaments.x>=-3) = obj.parameters.k_2_0 + ...
             0.3*((obj.myofilaments.x(obj.myofilaments.x>=-3)+3).^3);
-        r2 = r2 + 0.5;
+        r2 = r2 + 1;
         r2(r2>obj.parameters.max_rate)=obj.parameters.max_rate;
         
     case 'kyleChain'
+        r1 = zeros(size(obj.myofilaments.x));
+        r1 = obj.parameters.k_1 * ...
+            exp(-obj.parameters.k_cb * 5 * (2*(obj.myofilaments.x).^2) / ...
+            (1e18 * obj.parameters.k_boltzmann * ...
+            obj.parameters.temperature));
+        r1(r1>obj.parameters.max_rate)=obj.parameters.max_rate;
+        
+        r2 = zeros(size(obj.myofilaments.x));
+        r2(obj.myofilaments.x<-6) = obj.parameters.k_2_0 + ...
+            abs(0.2*((obj.myofilaments.x(obj.myofilaments.x<-6)+6).^3));
+        r2(obj.myofilaments.x>=-3) = obj.parameters.k_2_0 + ...
+            0.5*((obj.myofilaments.x(obj.myofilaments.x>=-3)+3).^3);
+        r2 = r2 + 3;
+        r2(r2>obj.parameters.max_rate)=obj.parameters.max_rate;
+        
+    case 'newSpindleBag'
+        r1 = zeros(size(obj.myofilaments.x));
+        r1 = obj.parameters.k_1 * ...
+            exp(-obj.parameters.k_cb * 10 * (obj.myofilaments.x).^2 / ...
+            (1e18 * obj.parameters.k_boltzmann * ...
+            obj.parameters.temperature));
+        r1(r1>obj.parameters.max_rate)=obj.parameters.max_rate;
+        
+        r2 = zeros(size(obj.myofilaments.x));
+        r2(obj.myofilaments.x<-6) = obj.parameters.k_2_0 + ...
+            abs(0.2*((obj.myofilaments.x(obj.myofilaments.x<-6)+6).^3));
+        r2(obj.myofilaments.x>=-3) = obj.parameters.k_2_0 + ...
+            0.3*((obj.myofilaments.x(obj.myofilaments.x>=-3)+3).^3);
+        r2 = r2 + 0.5;
+        r2(r2>obj.parameters.max_rate)=obj.parameters.max_rate;
+        
+    case 'newSpindleChain'
         r1 = zeros(size(obj.myofilaments.x));
         r1 = obj.parameters.k_1 * ...
             exp(-obj.parameters.k_cb * 5 * (2*(obj.myofilaments.x).^2) / ...
