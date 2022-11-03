@@ -77,10 +77,10 @@ else
     if (mode_value == -1)
         %line 80 to 83 commented out by SNS on 29th OCt 2022 to test the effect of moving
         %this to after when slakc is checked
-        % Update kinetics
-        if (time_step > 0)
-            obj.hs(1).implement_time_step(time_step, 0, Ca_value, m_props);
-        end
+%         % Update kinetics
+%         if (time_step > 0)
+%             obj.hs(1).implement_time_step(time_step, 0, Ca_value, m_props);
+%         end
         
         % This checks for slack
         isotonic_force = 0;
@@ -96,11 +96,11 @@ else
         adjustment = new_length - obj.hs(1).hs_length;
         
         % Implement
-%         % Update kinetics
-%         if (time_step > 0)
-%             obj.hs(1).implement_time_step(time_step, adjustment, Ca_value, m_props);
-%         end
-        obj.hs(1).move_cb_distribution(adjustment);
+        % Update kinetics
+        if (time_step > 0)
+            obj.hs(1).implement_time_step(time_step, adjustment, Ca_value, m_props);
+        end
+%         obj.hs(1).move_cb_distribution(adjustment);
         obj.hs(1).hs_length = new_length;
     else
         if (time_step > 0)
