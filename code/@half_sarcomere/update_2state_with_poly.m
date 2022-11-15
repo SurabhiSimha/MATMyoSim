@@ -158,7 +158,7 @@ switch obj.parameters.rate_func
         r2(obj.myofilaments.x<-5) = obj.parameters.k_2_0 + ...
             abs(0.2*((obj.myofilaments.x(obj.myofilaments.x<-5)+5).^3));
         r2(obj.myofilaments.x>=-5) = obj.parameters.k_2_0 + ...
-            0.3*((obj.myofilaments.x(obj.myofilaments.x>=-3)+5).^3);
+            0.3*((obj.myofilaments.x(obj.myofilaments.x>=-5)+5).^3);
         r2 = r2 + 0.5;
         r2(r2>obj.parameters.max_rate)=obj.parameters.max_rate;
         
