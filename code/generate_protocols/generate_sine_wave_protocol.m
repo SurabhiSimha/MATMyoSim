@@ -6,7 +6,7 @@ addOptional(p,'output_file_string','protocol\sinusoidal.txt');
 addOptional(p,'dhsl_nm',2);
 addOptional(p,'frequencies',[3 10 30 100]);
 addOptional(p,'no_of_cycles',3);
-addOptional(p,'pre_sinusoid_s',2.5);
+addOptional(p,'pre_sinusoid_s',2);
 addOptional(p,'inter_sinusoid_s',0.1);
 addOptional(p,'pre_Ca_s',0.1);
 addOptional(p,'initial_pCa',9.0);
