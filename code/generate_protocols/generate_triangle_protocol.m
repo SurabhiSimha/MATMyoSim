@@ -5,8 +5,10 @@ addOptional(p,'time_step',0.001);
 addOptional(p,'output_file_string','protocol\triangle.txt');
 addOptional(p,'no_of_triangles',1);
 addOptional(p,'triangle_nm',50);
+addOptional(p,'cond_triangle_nm',10)
 addOptional(p,'pre_first_triangle_s',2);
 addOptional(p,'triangle_rise_time_s',0.4);
+addOptional(p,'cond_triangle_rise_time_s',0.4);
 addOptional(p,'plateau_s',1);
 addOptional(p,'inter_triangle_s',0.1);
 addOptional(p,'pre_ktr_s',1);
@@ -24,9 +26,11 @@ p=p.Results;
 % Pre first ramp
 output.dhsl = zeros(round(p.pre_first_triangle_s/p.time_step),1);
 for i=1:p.no_of_triangles
+    if i==1, triangleAmp = p.cond_triangle_nm; riseTime = p.cond_triangle_rise_time_s;
+    else  triangleAmp = p.triangle_nm; riseTime = p.triangle_rise_time_s;end
     % Ramp up
-    no_of_triangle_steps = round(p.triangle_rise_time_s / p.time_step)
-    dx = p.triangle_nm / no_of_triangle_steps
+    no_of_triangle_steps = round(riseTime / p.time_step)
+    dx = triangleAmp / no_of_triangle_steps
     output.dhsl = [output.dhsl ; dx * ones(no_of_triangle_steps,1)];
     % Plateau
     no_of_plateau_steps = round(p.plateau_s / p.time_step);
